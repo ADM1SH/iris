@@ -4,95 +4,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const bgCanvas = document.getElementById('background-canvas');
     const fgCanvas = document.getElementById('foreground-canvas');
     const container = document.getElementById('canvas-container');
-    const yesButtonOverlay = document.getElementById('yes-button-overlay');
-    const noButtonOverlay = document.getElementById('no-button-overlay');
 
     // --- CONFIGURATION ---
     const RENDER_INTERVAL = 50;
-    const SCENE_WIDTH = 120;      // characters
-    const SCENE_HEIGHT = 40;     // characters
+    const SCENE_WIDTH = 120;
+    const SCENE_HEIGHT = 40;
     const BG_PETAL_COUNT = 600;
 
-    // --- ULTRA-SAFE, ERROR-PROOF ASSETS ---
+    // --- ASSETS (Cleaned & Updated) ---
     const ASSETS = {
-        hachiwareIdle: [
-            "  /\_/\  ",
-            " ( o.o ) ",
-            "  > ^ <  "
-        ],
-        hachiwareWalk: [
-            "  /\_/\  ",
-            " ( >.> ) ",
-            "  > ^ <  "
-        ],
-        hachiwareSmile: [
-            "  /\_/\  ",
-            " ( ^.^ ) ",
-            "  > v <  "
-        ],
-        flower: [
-            "   *   ",
-            "--_|_--",
-            "   |   "
-        ],
         backgroundArt: [
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " ",
-            " "
+            " ", " ", " ", " ", " ", " ", " ", " ", " ", " ",
+            " ", " ", " ", " ", " ", " ", " ", " ", " ", " ",
+            " ", " ", " ", " ", " ", " ", " ", " ", " ", " "
         ],
-        heart: '<3',
-        petal: '.'
+        petal: ['*', "'", '`'] // Array of petal characters for variety
     };
 
+    // --- STORY_TEXT (Cleaned) ---
     const STORY_TEXT = {
-        intro: 'Oh my — can you believe it’s been a month already?',
-        narrative: 'We haven’t really made it official yet, right?',
-        so: 'So...',
-        question: 'Will you be my girlfriend?',
-        celebration: 'I’m the happiest person right now,\nthank you for saying yes. <3'
+        intro: 'Oh my — can you believe it’s been a month already?'
     };
 
-    let scene = 'intro';
+    // --- STATE (Cleaned) ---
     let frame = 0;
-    let characterX = -20;
     let bgParticles = [];
-    let fgParticles = [];
-    let yesButtonPos = { x: 28, y: 16 };
-    let noButtonPos = { x: 48, y: 16 };
+    let bgBuffer, fgBuffer; // Buffers for rendering
 
-    // Re-usable buffers for rendering to prevent re-allocation
-    let bgBuffer, fgBuffer;
-
+    // --- RENDERING LOGIC ---
     const createBuffer = () => Array.from({ length: SCENE_HEIGHT }, () => Array(SCENE_WIDTH).fill(' '));
 
-    // New function to clear a buffer instead of creating a new one
     function clearBuffer(buffer) {
         for (let i = 0; i < SCENE_HEIGHT; i++) {
             buffer[i].fill(' ');
@@ -117,145 +58,55 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderBackground() {
-        clearBuffer(bgBuffer); // OPTIMIZED
+        clearBuffer(bgBuffer);
         draw(bgBuffer, ASSETS.backgroundArt, 0, 0);
-
-        // Add new particles with defined velocities
         if (bgParticles.length < BG_PETAL_COUNT && frame % 2 === 0) {
+            // Select a random petal character for each new particle
+            const petalType = ASSETS.petal[Math.floor(Math.random() * ASSETS.petal.length)];
             bgParticles.push({
                 x: Math.random() * SCENE_WIDTH,
                 y: 0,
-                type: ASSETS.petal,
-                vy: 0.1 + Math.random() * 0.3, // Vertical velocity
-                vx: (Math.random() - 0.5) * 0.2  // Horizontal velocity
+                type: petalType, // Use the random petal
+                vy: 0.1 + Math.random() * 0.3,
+                vx: (Math.random() - 0.5) * 0.2
             });
         }
-
-        // Update particles based on their velocity
         bgParticles.forEach(p => {
             p.y += p.vy;
             p.x += p.vx;
-
-            // Wrap particles around the screen
             if (p.y >= SCENE_HEIGHT) p.y = 0;
             if (p.x < 0) p.x = SCENE_WIDTH - 1;
             if (p.x >= SCENE_WIDTH) p.x = 0;
-
             draw(bgBuffer, p.type, Math.floor(p.x), Math.floor(p.y));
         });
-
         renderToCanvas(bgCanvas, bgBuffer);
     }
 
     function renderForeground() {
-        clearBuffer(fgBuffer); // OPTIMIZED
+        clearBuffer(fgBuffer);
         frame++;
-        const midX = Math.floor(SCENE_WIDTH / 2);
         const midY = Math.floor(SCENE_HEIGHT / 2);
-
-        switch (scene) {
-            case 'intro':
-                draw(fgBuffer, STORY_TEXT.intro, 0, midY - 2, true);
-                break;
-            case 'narrative':
-                draw(fgBuffer, STORY_TEXT.narrative, 0, midY - 2, true);
-                break;
-            case 'so':
-                draw(fgBuffer, STORY_TEXT.so, 0, midY - 1, true);
-                break;
-            case 'walk':
-            case 'question':
-                const walkTarget = midX - 10;
-                if (characterX < walkTarget) characterX += 1;
-                const hachiwareAsset = (frame % 4 < 2) ? ASSETS.hachiwareWalk : ASSETS.hachiwareIdle;
-                draw(fgBuffer, hachiwareAsset, characterX, midY);
-                draw(fgBuffer, ASSETS.flower, characterX + 12, midY + 2);
-
-                if (scene === 'question') {
-                    const modalWidth = 54;
-                    const modalX = Math.floor((SCENE_WIDTH - modalWidth) / 2);
-                    draw(fgBuffer, `+${'-'.repeat(modalWidth - 2)}+`, modalX, midY - 5);
-                    draw(fgBuffer, `|${' '.repeat(modalWidth - 2)}|`, modalX, midY - 4);
-                    draw(fgBuffer, `|${' '.repeat(modalWidth - 2)}|`, modalX, midY - 3);
-                    draw(fgBuffer, `+${'-'.repeat(modalWidth - 2)}+`, modalX, midY + 5);
-                    
-                    draw(fgBuffer, STORY_TEXT.question, 0, midY - 3, true);
-                    yesButtonPos = { x: midX - 10, y: midY + 2 };
-                    noButtonPos = { x: midX + 10, y: midY + 2 };
-                    draw(fgBuffer, `[ Yes ]`, yesButtonPos.x, yesButtonPos.y);
-                    draw(fgBuffer, `[ No ]`, noButtonPos.x, noButtonPos.y);
-                    positionButtons();
-                }
-                break;
-            case 'celebration':
-                if (frame % 2 === 0) fgParticles.push({ x: Math.random() * SCENE_WIDTH, y: 0, type: ASSETS.heart });
-                
-                fgParticles.forEach(p => p.y += 1);
-                fgParticles = fgParticles.filter(p => p.y < SCENE_HEIGHT);
-                fgParticles.forEach(p => draw(fgBuffer, p.type, Math.floor(p.x), Math.floor(p.y)));
-
-                draw(fgBuffer, ASSETS.hachiwareSmile, midX - 20, midY);
-                draw(fgBuffer, ASSETS.flower, midX + 5, midY + 2);
-                draw(fgBuffer, STORY_TEXT.celebration.split('\n'), 0, midY - 2, true);
-                break;
-        }
+        draw(fgBuffer, STORY_TEXT.intro, 0, midY - 2, true);
         renderToCanvas(fgCanvas, fgBuffer);
     }
 
-    function positionButtons() {
-        const canvasRect = container.getBoundingClientRect();
-        if (canvasRect.width === 0) return;
-        const charWidth = (canvasRect.width - 32) / SCENE_WIDTH;
-        const charHeight = (canvasRect.height - 32) / SCENE_HEIGHT;
-        yesButtonOverlay.style.display = 'block';
-        noButtonOverlay.style.display = 'block';
-        Object.assign(yesButtonOverlay.style, {
-            left: `${canvasRect.left + 16 + yesButtonPos.x * charWidth}px`,
-            top: `${canvasRect.top + 16 + yesButtonPos.y * charHeight}px`,
-            width: `${7 * charWidth}px`, height: `${1.5 * charHeight}px`
-        });
-        Object.assign(noButtonOverlay.style, {
-            left: `${canvasRect.left + 16 + noButtonPos.x * charWidth}px`,
-            top: `${canvasRect.top + 16 + noButtonPos.y * charHeight}px`,
-            width: `${6 * charWidth}px`, height: `${1.5 * charHeight}px`
-        });
-    }
-
-    function handleYesClick() {
-        scene = 'celebration';
-        yesButtonOverlay.style.display = 'none';
-        noButtonOverlay.style.display = 'none';
-    }
-
-    function handleNoHover() {
-        noButtonPos.x = 15 + Math.floor(Math.random() * (SCENE_WIDTH - 30));
-        noButtonPos.y = 14 + Math.floor(Math.random() * 4);
-    }
-
-    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-    async function runStorySequence() {
-        // Story sequence will be added in the next step
-    }
-
-    function init() {
+    // --- INITIALIZATION ---
+    function handleResize() {
         const charWidth = window.innerWidth / SCENE_WIDTH;
         const charHeight = window.innerHeight / SCENE_HEIGHT;
         const fontSize = Math.min(charWidth * 1.4, charHeight * 1.4, 18);
         container.style.fontSize = `${fontSize}px`;
+    }
 
-        // Create re-usable buffers
+    function init() {
+        handleResize();
         bgBuffer = createBuffer();
         fgBuffer = createBuffer();
-
-        // Event listeners will be added in a later step
-
+        window.addEventListener('resize', handleResize);
         setInterval(() => {
             renderBackground();
             renderForeground();
         }, RENDER_INTERVAL);
-        
-        runStorySequence();
     }
 
     init();
