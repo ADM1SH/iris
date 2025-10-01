@@ -87,7 +87,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let yesButtonPos = { x: 28, y: 16 };
     let noButtonPos = { x: 48, y: 16 };
 
+    // Re-usable buffers for rendering to prevent re-allocation
+    let bgBuffer, fgBuffer;
+
     const createBuffer = () => Array.from({ length: SCENE_HEIGHT }, () => Array(SCENE_WIDTH).fill(' '));
+
+    // New function to clear a buffer instead of creating a new one
+    function clearBuffer(buffer) {
+        for (let i = 0; i < SCENE_HEIGHT; i++) {
+            buffer[i].fill(' ');
+        }
+    }
 
     function draw(buffer, content, x, y, centered = false) {
         const lines = Array.isArray(content) ? content : [content];
@@ -107,57 +117,73 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderBackground() {
-        const buffer = createBuffer();
-        draw(buffer, ASSETS.backgroundArt, 0, 0);
-        if (bgParticles.length < BG_PETAL_COUNT && frame % 10 === 0) {
-            bgParticles.push({ x: Math.random() * SCENE_WIDTH, y: 0, type: ASSETS.petal });
+        clearBuffer(bgBuffer); // OPTIMIZED
+        draw(bgBuffer, ASSETS.backgroundArt, 0, 0);
+
+        // Add new particles with defined velocities
+        if (bgParticles.length < BG_PETAL_COUNT && frame % 2 === 0) {
+            bgParticles.push({
+                x: Math.random() * SCENE_WIDTH,
+                y: 0,
+                type: ASSETS.petal,
+                vy: 0.1 + Math.random() * 0.3, // Vertical velocity
+                vx: (Math.random() - 0.5) * 0.2  // Horizontal velocity
+            });
         }
+
+        // Update particles based on their velocity
         bgParticles.forEach(p => {
-            p.y += 0.2;
-            p.x += (Math.random() - 0.5) * 0.5;
+            p.y += p.vy;
+            p.x += p.vx;
+
+            // Wrap particles around the screen
             if (p.y >= SCENE_HEIGHT) p.y = 0;
-            draw(buffer, p.type, Math.floor(p.x), Math.floor(p.y));
+            if (p.x < 0) p.x = SCENE_WIDTH - 1;
+            if (p.x >= SCENE_WIDTH) p.x = 0;
+
+            draw(bgBuffer, p.type, Math.floor(p.x), Math.floor(p.y));
         });
-        renderToCanvas(bgCanvas, buffer);
+
+        renderToCanvas(bgCanvas, bgBuffer);
     }
 
     function renderForeground() {
-        const buffer = createBuffer();
+        clearBuffer(fgBuffer); // OPTIMIZED
         frame++;
         const midX = Math.floor(SCENE_WIDTH / 2);
         const midY = Math.floor(SCENE_HEIGHT / 2);
 
         switch (scene) {
             case 'intro':
-                draw(buffer, STORY_TEXT.intro, 0, midY - 2, true);
+                draw(fgBuffer, STORY_TEXT.intro, 0, midY - 2, true);
                 break;
             case 'narrative':
-                draw(buffer, STORY_TEXT.narrative, 0, midY - 2, true);
+                draw(fgBuffer, STORY_TEXT.narrative, 0, midY - 2, true);
                 break;
             case 'so':
-                draw(buffer, STORY_TEXT.so, 0, midY - 1, true);
+                draw(fgBuffer, STORY_TEXT.so, 0, midY - 1, true);
                 break;
             case 'walk':
             case 'question':
                 const walkTarget = midX - 10;
                 if (characterX < walkTarget) characterX += 1;
                 const hachiwareAsset = (frame % 4 < 2) ? ASSETS.hachiwareWalk : ASSETS.hachiwareIdle;
-                draw(buffer, hachiwareAsset, characterX, midY);
-                draw(buffer, ASSETS.flower, characterX + 12, midY + 2);
+                draw(fgBuffer, hachiwareAsset, characterX, midY);
+                draw(fgBuffer, ASSETS.flower, characterX + 12, midY + 2);
 
                 if (scene === 'question') {
                     const modalWidth = 54;
                     const modalX = Math.floor((SCENE_WIDTH - modalWidth) / 2);
-                    draw(buffer, `+${'-'.repeat(modalWidth - 2)}+`, modalX, midY - 5);
-                    draw(buffer, `|${' '.repeat(modalWidth - 2)}|`, modalX, midY - 4);
-                    draw(buffer, `|${' '.repeat(modalWidth - 2)}|`, modalX, midY - 3);
-                    draw(buffer, `+${'-'.repeat(modalWidth - 2)}+`, modalX, midY + 5);
+                    draw(fgBuffer, `+${'-'.repeat(modalWidth - 2)}+`, modalX, midY - 5);
+                    draw(fgBuffer, `|${' '.repeat(modalWidth - 2)}|`, modalX, midY - 4);
+                    draw(fgBuffer, `|${' '.repeat(modalWidth - 2)}|`, modalX, midY - 3);
+                    draw(fgBuffer, `+${'-'.repeat(modalWidth - 2)}+`, modalX, midY + 5);
                     
-                    draw(buffer, STORY_TEXT.question, 0, midY - 3, true);
+                    draw(fgBuffer, STORY_TEXT.question, 0, midY - 3, true);
                     yesButtonPos = { x: midX - 10, y: midY + 2 };
                     noButtonPos = { x: midX + 10, y: midY + 2 };
-                    draw(buffer, `[ Yes ]`, yesButtonPos.x, yesButtonPos.y);
-                    draw(buffer, `[ No ]`, noButtonPos.x, noButtonPos.y);
+                    draw(fgBuffer, `[ Yes ]`, yesButtonPos.x, yesButtonPos.y);
+                    draw(fgBuffer, `[ No ]`, noButtonPos.x, noButtonPos.y);
                     positionButtons();
                 }
                 break;
@@ -166,14 +192,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 fgParticles.forEach(p => p.y += 1);
                 fgParticles = fgParticles.filter(p => p.y < SCENE_HEIGHT);
-                fgParticles.forEach(p => draw(buffer, p.type, Math.floor(p.x), Math.floor(p.y)));
+                fgParticles.forEach(p => draw(fgBuffer, p.type, Math.floor(p.x), Math.floor(p.y)));
 
-                draw(buffer, ASSETS.hachiwareSmile, midX - 20, midY);
-                draw(buffer, ASSETS.flower, midX + 5, midY + 2);
-                draw(buffer, STORY_TEXT.celebration.split('\n'), 0, midY - 2, true);
+                draw(fgBuffer, ASSETS.hachiwareSmile, midX - 20, midY);
+                draw(fgBuffer, ASSETS.flower, midX + 5, midY + 2);
+                draw(fgBuffer, STORY_TEXT.celebration.split('\n'), 0, midY - 2, true);
                 break;
         }
-        renderToCanvas(fgCanvas, buffer);
+        renderToCanvas(fgCanvas, fgBuffer);
     }
 
     function positionButtons() {
@@ -217,6 +243,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const charHeight = window.innerHeight / SCENE_HEIGHT;
         const fontSize = Math.min(charWidth * 1.4, charHeight * 1.4, 18);
         container.style.fontSize = `${fontSize}px`;
+
+        // Create re-usable buffers
+        bgBuffer = createBuffer();
+        fgBuffer = createBuffer();
 
         // Event listeners will be added in a later step
 

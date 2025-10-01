@@ -20,6 +20,11 @@ body {
 /* --- Canvas Layout --- */
 #canvas-container {
     position: relative;
+    border: 1px solid var(--petal-color);
+    padding: 1.5em;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    background-color: var(--bg-color);
 }
 
 .canvas {
