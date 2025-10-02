@@ -1,74 +1,131 @@
-# A Story in ASCII — Hachiware's Proposal
+# 🌸 A Story in ASCII — Hachiware's Proposal  
 
-A from-scratch, single-page interactive story told entirely through layered ASCII art. This project features a detailed, animated background, a foreground character animation, and a playful interactive narrative.
-
----
-
-## 🎯 Project Vision
-
-This project aims to create a rich, heartfelt experience using only text characters. It leverages layered animations to create a sense of depth, with a slow-moving, atmospheric background behind a more dynamic foreground character. The narrative guides the user through a short, sweet story culminating in a question with a unique interactive twist.
+An interactive, single-page ASCII art story told entirely with **layered text animations**. The project combines drifting ASCII petals, a foreground character, and playful interaction to create a heartfelt digital experience.  
 
 ---
 
-## 🧩 Features
+## 🎯 Project Vision  
 
--   **Layered ASCII Animation:** A detailed background with drifting petals and growing vines animates independently from the foreground character, creating depth.
--   **Character Animation:** A multi-frame Hachiware character walks across the screen to present a lily-of-the-valley flower.
--   **Full Narrative Sequence:** The story progresses through timed scenes, from an introductory message to a final celebration.
--   **Evasive ASCII Button:** The `[ No ]` button is rendered in ASCII but is attached to an invisible HTML overlay. When hovered, it triggers JavaScript to redraw the button in a new location, making it playfully difficult to click.
--   **ASCII Modal & Celebration:** The proposal is presented in a stylized ASCII modal. A "Yes" click triggers a celebratory scene with falling hearts and a smiling character.
--   **Responsive Design:** The layout and font size adapt to different screen widths to ensure the art is always readable.
+This project is about pushing the boundaries of what can be done with just **text characters**. It combines background animations, character ASCII art, and an evolving narrative to deliver an emotional, game-like story experience — without using any images or external libraries.  
 
 ---
 
-## 🔧 Tech Stack
+## 🧩 Features  
 
-| Component             | Technology / Library | Purpose                                                 |
-| --------------------- | -------------------- | ------------------------------------------------------- |
-| Rendering & Visuals   | **HTML `<pre>` & JS**  | Two layered `<pre>` tags are updated by JavaScript to create the animations. |
-| UI & Interaction      | **HTML, CSS, JS**    | Invisible overlays handle button clicks; CSS manages layout and fonts. |
-| Hosting               | Any static site host | Can be run locally or on services like GitHub Pages, Netlify, etc. |
+- **ASCII Animation Engine**  
+  - Two `<pre>` canvases: background and foreground  
+  - Background: drifting ASCII petals (`*`, `'`, `` ` ``) with smooth movement  
+  - Foreground: narrative text, later extensible to character art  
+
+- **Interactive Narrative**  
+  - Text scenes drawn from `STORY_TEXT` in `ascii.js`  
+  - Story can be customized easily  
+
+- **Responsive Scaling**  
+  - Dynamically adjusts font size based on viewport  
+  - Works on desktop and mobile  
+
+- **Customizable Engine**  
+  - Constants (`SCENE_WIDTH`, `SCENE_HEIGHT`, `BG_PETAL_COUNT`, etc.) control density, speed, and pacing  
+  - ASCII art and narrative are stored in `ASSETS` and `STORY_TEXT` for easy editing  
 
 ---
 
-## 📁 File Structure
+## 🔧 Tech Stack  
+
+| Component             | Technology / Library | Purpose |
+|-----------------------|----------------------|---------|
+| Rendering & Visuals   | **HTML `<pre>` + JavaScript** | ASCII art rendering, animation loop |
+| Styling               | **CSS**              | Layout, font control, atmosphere |
+| Hosting               | **Static** (GitHub Pages, Netlify, local server) | Simple deployment |
+
+---
+
+## 📁 File Structure  
 
 ```
-/
+/iris
 │
-├── index.html          # Main HTML with layered <pre> canvases
-├── styles.css          # All styles for layout, font, and colors
-├── ascii.js            # Core script for rendering, animation, and all logic
-└── README.md           # This file
+├── index.html     # Main HTML structure with layered <pre> canvases
+├── styles.css     # Styling for background, layout, and font
+├── ascii.js       # Core rendering engine, animation, and story logic
+└── readme.md      # Project documentation
 ```
 
 ---
 
-## 🚀 Setup & Run Instructions
+## 🚀 Setup & Run  
 
-This project requires no installation or build steps. Simply serve the files with a local web server.
+No installation or build steps are required. Just open in a browser, or run a quick local server.  
 
-1.  **Navigate to the project directory** in your terminal:
-    ```sh
-    cd /Users/adamanwar/Desktop/iris
-    ```
+**Method 1: Open directly**  
+- Double-click `index.html` to run in your browser.  
 
-2.  **Start a local server**. The simplest method is using Python:
-    ```sh
-    # For Python 3
-    python3 -m http.server
-    ```
-
-3.  **Open in browser**: Open your web browser and go to the URL provided, which is typically:
-    `http://localhost:8000`
+**Method 2: Run a local server**  
+```sh
+cd /Users/adamanwar/Desktop/iris
+python3 -m http.server
+```
+Then visit:  
+👉 [http://localhost:8000](http://localhost:8000)  
 
 ---
 
-## 🎨 Customization
+## 🎨 Customization  
 
-All creative content can be modified in `ascii.js`.
+All creative content lives in `ascii.js`.  
 
--   **Change Text & Messages**: Edit the `STORY_TEXT` object to change the narrative.
--   **Edit ASCII Art**: The `ASSETS` object contains all ASCII art for the background, character, and effects. You can edit these multi-line strings directly.
--   **Adjust Timings**: The `runStorySequence` function controls the delays between scenes. Modify the `wait()` values to change the story's pacing.
--   **Animation Behavior**: Constants at the top of the script like `BG_PETAL_COUNT` or `RENDER_INTERVAL` can be tweaked to change animation density and speed.
+- **Narrative Text**  
+  - Edit `STORY_TEXT` to change story messages.  
+  ```js
+  const STORY_TEXT = {
+      intro: 'Oh my — can you believe it’s been a month already?'
+  };
+  ```
+
+- **ASCII Art**  
+  - Modify `ASSETS.backgroundArt` or add new art frames.  
+  ```js
+  const ASSETS = {
+      backgroundArt: [ " ", " ", " " ],
+      petal: ['*', "'", '`']
+  };
+  ```
+
+- **Animation Behavior**  
+  - Change constants like `BG_PETAL_COUNT`, `RENDER_INTERVAL`, `SCENE_WIDTH`, and `SCENE_HEIGHT` to tweak performance and density.  
+
+- **Scaling**  
+  - The `handleResize()` function dynamically adjusts ASCII size. Edit scaling factors there for different visual styles.  
+
+---
+
+## 🛠 How It Works  
+
+1. **Initialization (`init()`)**  
+   - Creates ASCII buffers for background & foreground  
+   - Handles resizing for responsiveness  
+
+2. **Animation Loop**  
+   - Runs every `RENDER_INTERVAL` (default 50ms)  
+   - `renderBackground()` updates drifting petals  
+   - `renderForeground()` places story text  
+
+3. **Rendering**  
+   - Each buffer is converted into a string with `renderToCanvas()`  
+   - Displayed inside `<pre>` tags (`background-canvas` and `foreground-canvas`)  
+
+---
+
+## 📌 Future Improvements  
+
+- Multi-scene story progression with timing (`runStorySequence`)  
+- ASCII-based interactive modal with “Yes/No” options  
+- Character art frames for walking animations  
+- Celebration scene with falling ASCII hearts  
+
+---
+
+## 📜 License  
+
+MIT License — free to use, modify, and share.  
