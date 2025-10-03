@@ -1,13 +1,13 @@
 :root {
-    --bg-color: #1a1d22; /* Darker, cooler background */
-    --text-color: #e5e5e5; /* Bright, clear text */
-    --petal-color: #6c7a89;  /* Softer, more visible grey for background elements */
+    --bg-color: #1a1d22;
+    --text-color: #e5e5e5;
+    --petal-color: #6c7a89;
 }
 
 body {
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Prevent scrollbars */
+    overflow: hidden;
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: 'Courier New', Courier, monospace;
@@ -17,7 +17,6 @@ body {
     min-height: 100vh;
 }
 
-/* --- Canvas Layout --- */
 #canvas-container {
     position: relative;
     border: 1px solid var(--petal-color);
@@ -39,18 +38,16 @@ body {
 }
 
 #foreground-canvas {
-    /* This canvas sits directly on top of the background */
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 1.5em;
+    left: 1.5em;
     background-color: transparent;
 }
 
-/* --- Button Overlays --- */
 .button-overlay {
-    position: fixed; /* Position relative to the viewport */
-    background: rgba(255, 0, 0, 0); /* Fully transparent */
+    position: fixed;
+    background: rgba(255, 0, 0, 0);
     cursor: pointer;
-    display: none; /* Hidden by default */
+    display: none;
     transition: all 0.1s ease-out;
 }

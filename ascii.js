@@ -9,53 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const RENDER_INTERVAL = 50;
     const SCENE_WIDTH = 120;
     const SCENE_HEIGHT = 40;
-    const BG_PETAL_COUNT = 600;
+    const BG_PETAL_COUNT = 200;
 
     // --- ASSETS (Cleaned & Updated) ---
     const ASSETS = {
-        backgroundArt: [
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        '
-        ],
-        petal: ['*', "'", '`'] // Array of petal characters for variety
+        backgroundArt: '',
+        petal: ['🌸', '`', '.']
     };
 
     // --- STORY_TEXT (Cleaned) ---
@@ -78,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function draw(buffer, content, x, y, centered = false) {
-        const lines = Array.isArray(content) ? content : [content];
+        const lines = typeof content === 'string' ? content.split('\n') : content;
         lines.forEach((line, i) => {
             const startX = centered ? Math.floor((SCENE_WIDTH - line.length) / 2) : x;
             if (y + i < 0 || y + i >= SCENE_HEIGHT) return;
@@ -96,14 +55,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderBackground() {
         clearBuffer(bgBuffer);
-        draw(bgBuffer, ASSETS.backgroundArt, 0, 0);
+        draw(bgBuffer, ASSETS.backgroundArt, 0, 0, true);
+        renderToCanvas(bgCanvas, bgBuffer);
+    }
+
+    function renderForeground() {
+        clearBuffer(fgBuffer);
+
+        // Petal animation
         if (bgParticles.length < BG_PETAL_COUNT && frame % 2 === 0) {
-            // Select a random petal character for each new particle
             const petalType = ASSETS.petal[Math.floor(Math.random() * ASSETS.petal.length)];
             bgParticles.push({
                 x: Math.random() * SCENE_WIDTH,
                 y: 0,
-                type: petalType, // Use the random petal
+                type: petalType,
                 vy: 0.1 + Math.random() * 0.3,
                 vx: (Math.random() - 0.5) * 0.2
             });
@@ -114,16 +79,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (p.y >= SCENE_HEIGHT) p.y = 0;
             if (p.x < 0) p.x = SCENE_WIDTH - 1;
             if (p.x >= SCENE_WIDTH) p.x = 0;
-            draw(bgBuffer, p.type, Math.floor(p.x), Math.floor(p.y));
+            draw(fgBuffer, p.type, Math.floor(p.x), Math.floor(p.y));
         });
-        renderToCanvas(bgCanvas, bgBuffer);
-    }
 
-    function renderForeground() {
-        clearBuffer(fgBuffer);
+        // Story text
         frame++;
         const midY = Math.floor(SCENE_HEIGHT / 2);
         draw(fgBuffer, STORY_TEXT.intro, 0, midY - 2, true);
+
         renderToCanvas(fgCanvas, fgBuffer);
     }
 
@@ -133,6 +96,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const charHeight = window.innerHeight / SCENE_HEIGHT;
         const fontSize = Math.min(charWidth * 1.4, charHeight * 1.4, 18);
         container.style.fontSize = `${fontSize}px`;
+
+        const rect = container.getBoundingClientRect();
+        const cols = Math.floor(rect.width / (fontSize * 0.6));
+        const rows = Math.floor(rect.height / (fontSize * 1.2));
+        console.log(`Canvas dimensions: ${cols}x${rows}`);
     }
 
     function init() {
@@ -140,10 +108,16 @@ document.addEventListener('DOMContentLoaded', () => {
         bgBuffer = createBuffer();
         fgBuffer = createBuffer();
         window.addEventListener('resize', handleResize);
-        setInterval(() => {
-            renderBackground();
-            renderForeground();
-        }, RENDER_INTERVAL);
+
+        fetch('background.txt')
+            .then(response => response.text())
+            .then(text => {
+                ASSETS.backgroundArt = text;
+                setInterval(() => {
+                    renderBackground();
+                    renderForeground();
+                }, RENDER_INTERVAL);
+            });
     }
 
     init();
