@@ -5,10 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const fgCanvas = document.getElementById('foreground-canvas');
     const container = document.getElementById('canvas-container');
 
+
     // --- CONFIGURATION ---
     const RENDER_INTERVAL = 50;
     const SCENE_WIDTH = 120;
-    const SCENE_HEIGHT = 40;
+    const SCENE_HEIGHT = 21;
     const BG_PETAL_COUNT = 200;
 
     // --- ASSETS (Cleaned & Updated) ---
@@ -82,11 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
             draw(fgBuffer, p.type, Math.floor(p.x), Math.floor(p.y));
         });
 
-        // Story text
         frame++;
         const midY = Math.floor(SCENE_HEIGHT / 2);
         draw(fgBuffer, STORY_TEXT.intro, 0, midY - 2, true);
-
         renderToCanvas(fgCanvas, fgBuffer);
     }
 
@@ -94,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleResize() {
         const charWidth = window.innerWidth / SCENE_WIDTH;
         const charHeight = window.innerHeight / SCENE_HEIGHT;
-        const fontSize = Math.min(charWidth * 1.4, charHeight * 1.4, 18);
+        const fontSize = Math.min(charWidth * 4.0, charHeight * 4.0, 40);
         container.style.fontSize = `${fontSize}px`;
     }
 
