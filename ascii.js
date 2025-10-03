@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ASSETS (Cleaned & Updated) ---
     const ASSETS = {
         backgroundArt: '',
-        petal: ['🌸', '`', '.']
+        petal: ['*', '`', '.']
     };
 
     // --- STORY_TEXT (Cleaned) ---
@@ -96,11 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const charHeight = window.innerHeight / SCENE_HEIGHT;
         const fontSize = Math.min(charWidth * 1.4, charHeight * 1.4, 18);
         container.style.fontSize = `${fontSize}px`;
-
-        const rect = container.getBoundingClientRect();
-        const cols = Math.floor(rect.width / (fontSize * 0.6));
-        const rows = Math.floor(rect.height / (fontSize * 1.2));
-        console.log(`Canvas dimensions: ${cols}x${rows}`);
     }
 
     function init() {
