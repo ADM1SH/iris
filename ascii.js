@@ -4,12 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const bgCanvas = document.getElementById('background-canvas');
     const fgCanvas = document.getElementById('foreground-canvas');
     const container = document.getElementById('canvas-container');
+    const giftBoxElement = document.getElementById('gift-box');
 
 
     // --- CONFIGURATION ---
     const RENDER_INTERVAL = 50;
-    const SCENE_WIDTH = 120;
-    const SCENE_HEIGHT = 21;
+    const SCENE_WIDTH = 125;
+    const SCENE_HEIGHT = 42;
     const BG_PETAL_COUNT = 200;
 
     // --- ASSETS (Cleaned & Updated) ---
@@ -18,10 +19,38 @@ document.addEventListener('DOMContentLoaded', () => {
         petal: ['*', '`', '.']
     };
 
-    // --- STORY_TEXT (Cleaned) ---
-    const STORY_TEXT = {
-        intro: 'Oh my — can you believe it’s been a month already?'
-    };
+    const GIFT_BOX_ART = `
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡠⢄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠞⠉⠀⠀⠙⢦⠀⠀⠀⠀⠀⠀⠀⢠⠎⠁⠀⠀⠈⠱⡄⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⡞⠂⠀⠀⠀⠀⠈⣧⠖⠚⠉⠓⠲⢤⠇⠐⠀⠀⠀⠀⠀⢹⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⣇⠀⣠⡀⠀⠀⠀⠸⡄⢀⣄⣠⢀⡼⠀⠀⠀⣀⣤⠿⡄⣼⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⣀⣠⠤⠖⠚⠙⠹⣼⡏⡙⠳⢤⣀⠀⢹⠏⠉⠉⣾⠀⣀⣠⡶⠟⠉⣰⡿⠛⠒⠲⢤⣀⣀⠀⠀⠀
+⡶⢾⣉⡁⠀⡀⠠⠀⢂⠀⠈⠙⢳⣶⠦⠭⠽⠿⣦⣀⡠⠿⠿⠿⢶⣶⡞⠛⠉⠀⡀⠄⠠⠀⢀⢈⣩⣶⡆
+⣇⠠⡈⠉⠳⠦⣤⣂⡤⠼⠚⠋⠉⠀⣀⡤⠴⠞⠋⠉⠙⠲⠤⣄⣀⠀⠉⠙⠲⠦⣤⣐⣤⠾⡛⠫⢑⢸⡇
+⠙⡦⢥⣐⠀⡀⠀⣽⠐⠀⢠⣶⡞⠉⠡⠐⠀⠄⠂⠁⡐⠀⡀⢀⠈⢉⣒⣦⣄⠀⠠⣟⢈⡐⣡⣸⡴⣾⠃
+⠈⡇⠀⠈⠙⠳⠦⣾⠀⠀⢸⢬⠉⠛⠶⣤⣈⡀⠄⠁⡀⣐⣠⡴⠾⡛⠍⢃⡇⡈⢔⣯⢶⠻⠍⢃⠱⣻⠀
+⠈⡇⠀⠁⠂⡀⠄⢻⠩⠓⢾⢦⣀⡄⠀⡀⠈⠙⠲⣶⠻⠍⢃⡉⠔⣀⣣⡾⡷⡞⠯⣏⠐⡌⠰⢁⠪⣽⠀
+⠈⡇⠀⠁⠄⠀⠄⣻⠀⠀⢸⠀⠈⠙⠓⠦⣌⣀⠄⡿⢐⣨⣴⠶⡛⢋⠱⢈⡇⡐⠠⡗⢠⠂⢅⠢⢑⣿⠀
+⠈⡇⠀⡈⠀⠌⠀⢾⠀⠀⢸⠀⢈⠠⠐⠀⡀⠉⠛⣿⠛⠱⠈⠤⠑⡨⠐⠌⡇⠄⠡⡟⠠⠌⢂⠔⡡⢾⠀
+⠈⡇⠀⡀⠌⠀⠄⣻⠀⠀⢸⠀⠠⠀⡐⠀⠄⠂⠀⣿⠈⠔⡉⠄⣃⠐⡉⢌⡗⡈⠐⣯⠐⣁⠊⡐⢌⣿⠀
+⠐⡇⠀⠀⠄⠈⠀⢾⠀⠀⢸⠀⠄⠁⡀⠐⢀⠈⠄⣿⠈⡰⠈⠔⡀⠎⡐⢂⡧⢀⠡⡗⢠⠂⡘⡀⢎⣾⠀
+⠐⡇⠀⢁⠠⠁⠈⢾⠀⠀⢸⠀⡀⠂⠀⠌⠀⠠⠀⣿⠐⢠⠉⡰⠈⠔⡠⢃⡇⢂⠐⣯⠀⠆⢡⠐⢢⢿⠀
+⠠⡇⠀⠠⠀⠂⠁⢾⠀⠀⢸⠀⠀⠄⠁⠠⠈⠀⠄⣿⠠⢁⠢⢁⠜⠠⣁⠢⡏⠠⢈⡧⠘⡈⢄⠊⡔⣻⠀
+⠠⡇⠀⡁⠐⠈⠀⣻⠀⠀⢸⠀⠁⠠⠈⡀⠄⠁⡀⣿⢀⠊⡐⠌⡠⠃⢄⠒⡏⡐⠠⡟⢠⠁⠆⢌⠰⣻⠀
+⠐⡇⢁⠀⠄⠁⠠⣹⠀⠀⢸⠀⠈⠄⠐⠀⡀⠂⠀⣿⠀⠜⢠⠘⠠⠑⡂⡘⡇⠄⠡⣟⠠⠌⡈⢄⢣⣿⠀
+⠀⠉⠚⠣⢤⣈⠀⣽⠀⠀⢸⠀⠁⠠⠈⠀⠄⠠⠁⣿⠈⡐⢂⠡⢃⡁⠆⢡⡏⠠⢁⡷⢀⣣⡼⠖⠋⠁⠀
+⠀⠀⠀⠀⠀⠈⠉⢻⠀⠀⢸⠀⠈⡄⢠⠁⠀⠂⡄⣿⠀⡁⠊⢰⠀⡆⠘⢠⡇⠁⣦⡟⠉⠁⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠉⠒⠾⠲⢤⣀⠄⠀⡁⠠⠀⣿⠐⠤⢁⠢⢁⣔⡥⠾⠷⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠓⠦⣤⣀⡿⢠⣼⠴⠛⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+`;
+
+    // --- SCENES ---
+    const SCENES = [
+        { text: 'Oh my — can you believe it’s been a month already?' },
+        { text: 'Happy Montaversary! ❤️💕💖' }
+    ];
+    let currentSceneIndex = 0;
 
     // --- STATE (Cleaned) ---
     let frame = 0;
@@ -85,8 +114,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         frame++;
         const midY = Math.floor(SCENE_HEIGHT / 2);
-        draw(fgBuffer, STORY_TEXT.intro, 0, midY - 2, true);
+        draw(fgBuffer, SCENES[currentSceneIndex].text, 0, midY - 2, true);
+        giftBoxElement.textContent = GIFT_BOX_ART; // Display gift box
         renderToCanvas(fgCanvas, fgBuffer);
+    }
+
+    function nextScene() {
+        currentSceneIndex = (currentSceneIndex + 1) % SCENES.length;
     }
 
     // --- INITIALIZATION ---
@@ -111,7 +145,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderBackground();
                     renderForeground();
                 }, RENDER_INTERVAL);
+                renderForeground(); // Render initial scene
             });
+
+        // Add event listener for scene transition
+        document.addEventListener('click', nextScene); // Click anywhere to advance scene
     }
 
     init();

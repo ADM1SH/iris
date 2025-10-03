@@ -1,131 +1,42 @@
-# 🌸 A Story in ASCII — Hachiware's Proposal  
-
-An interactive, single-page ASCII art story told entirely with **layered text animations**. The project combines drifting ASCII petals, a foreground character, and playful interaction to create a heartfelt digital experience.  
+# 💖 Our Little Digital Love Note (and a few ASCII shenanigans) 💖
 
 ---
 
-## 🎯 Project Vision  
-
-This project is about pushing the boundaries of what can be done with just **text characters**. It combines background animations, character ASCII art, and an evolving narrative to deliver an emotional, game-like story experience — without using any images or external libraries.  
+Welcome to our super-secret, slightly-glitchy, but *undeniably* heartfelt digital space. This isn't just any old project; it's a little corner of the internet dedicated to... well, *us*! 
 
 ---
 
-## 🧩 Features  
+## ✨ What's Inside This Digital Gift Box? ✨
 
-- **ASCII Animation Engine**  
-  - Two `<pre>` canvases: background and foreground  
-  - Background: drifting ASCII petals (`*`, `'`, `` ` ``) with smooth movement  
-  - Foreground: narrative text, later extensible to character art  
+This is a simple, interactive ASCII art story. Think of it as a digital flip-book of our moments, powered by pure JavaScript magic (and a lot of my patience, this took my 5 straight days to do...)
 
-- **Interactive Narrative**  
-  - Text scenes drawn from `STORY_TEXT` in `ascii.js`  
-  - Story can be customized easily  
-
-- **Responsive Scaling**  
-  - Dynamically adjusts font size based on viewport  
-  - Works on desktop and mobile  
-
-- **Customizable Engine**  
-  - Constants (`SCENE_WIDTH`, `SCENE_HEIGHT`, `BG_PETAL_COUNT`, etc.) control density, speed, and pacing  
-  - ASCII art and narrative are stored in `ASSETS` and `STORY_TEXT` for easy editing  
+*   **For Our Monthaversary:** This special edition is just for our monthaversary, with more to come!
+*   **ASCII Art Background:** A custom-made, perfectly aligned (after much struggle!) ASCII background that sets the mood.
+*   **Falling Petals:** Delicate ASCII petals drifting down, just like our love... or maybe just like actual petals. You decide!
+*   **Special Messages:** Click anywhere to reveal our little love notes. (Go on, try it!)
 
 ---
 
-## 🔧 Tech Stack  
+## 🚀 How to Experience Our Digital Romance (or just debug my code) 🚀
 
-| Component             | Technology / Library | Purpose |
-|-----------------------|----------------------|---------|
-| Rendering & Visuals   | **HTML `<pre>` + JavaScript** | ASCII art rendering, animation loop |
-| Styling               | **CSS**              | Layout, font control, atmosphere |
-| Hosting               | **Static** (GitHub Pages, Netlify, local server) | Simple deployment |
+No fancy installations needed! Just open `index.html` in your browser. 
+
+**Pro-Tip for Maximum Romance:** Dim the lights, put on some cheesy love songs.
 
 ---
 
-## 📁 File Structure  
+## A Peek Behind the Curtain (for the curious, or if something breaks)
 
-```
-/iris
-│
-├── index.html     # Main HTML structure with layered <pre> canvases
-├── styles.css     # Styling for background, layout, and font
-├── ascii.js       # Core rendering engine, animation, and story logic
-└── readme.md      # Project documentation
-```
+This little gem is built with:
+*   **HTML:** The bones of our digital love letter.
+*   **CSS:** Making everything look pretty (and centered, eventually!).
+*   **JavaScript:** The brains behind the animation and our scene transitions.
+*   **`background.txt`:** Where all the ASCII art magic lives (and where I spent *a lot* of time).
 
 ---
 
-## 🚀 Setup & Run  
-
-No installation or build steps are required. Just open in a browser, or run a quick local server.  
-
-**Method 1: Open directly**  
-- Double-click `index.html` to run in your browser.  
-
-**Method 2: Run a local server**  
-```sh
-cd /Users/adamanwar/Desktop/iris
-python3 -m http.server
-```
-Then visit:  
-👉 [http://localhost:8000](http://localhost:8000)  
+This project is a testament to our journey – sometimes a bit messy, always evolving, and ultimately, beautiful. Thanks for being you. You make every line of code (and every moment) extraordinary.
 
 ---
 
-## 🎨 Customization  
-
-All creative content lives in `ascii.js`.  
-
-- **Narrative Text**  
-  - Edit `STORY_TEXT` to change story messages.  
-  ```js
-  const STORY_TEXT = {
-      intro: 'Oh my — can you believe it’s been a month already?'
-  };
-  ```
-
-- **ASCII Art**  
-  - Modify `ASSETS.backgroundArt` or add new art frames.  
-  ```js
-  const ASSETS = {
-      backgroundArt: [ " ", " ", " " ],
-      petal: ['*', "'", '`']
-  };
-  ```
-
-- **Animation Behavior**  
-  - Change constants like `BG_PETAL_COUNT`, `RENDER_INTERVAL`, `SCENE_WIDTH`, and `SCENE_HEIGHT` to tweak performance and density.  
-
-- **Scaling**  
-  - The `handleResize()` function dynamically adjusts ASCII size. Edit scaling factors there for different visual styles.  
-
----
-
-## 🛠 How It Works  
-
-1. **Initialization (`init()`)**  
-   - Creates ASCII buffers for background & foreground  
-   - Handles resizing for responsiveness  
-
-2. **Animation Loop**  
-   - Runs every `RENDER_INTERVAL` (default 50ms)  
-   - `renderBackground()` updates drifting petals  
-   - `renderForeground()` places story text  
-
-3. **Rendering**  
-   - Each buffer is converted into a string with `renderToCanvas()`  
-   - Displayed inside `<pre>` tags (`background-canvas` and `foreground-canvas`)  
-
----
-
-## 📌 Future Improvements  
-
-- Multi-scene story progression with timing (`runStorySequence`)  
-- ASCII-based interactive modal with “Yes/No” options  
-- Character art frames for walking animations  
-- Celebration scene with falling ASCII hearts  
-
----
-
-## 📜 License  
-
-MIT License — free to use, modify, and share.  
+### P.S. If you find any bugs, blame my overpriced computer.
